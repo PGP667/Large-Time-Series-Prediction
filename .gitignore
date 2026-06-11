@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+bin/
+lib/
+include/
+
+# R specific
+.Rhistory
+.RData
+.Ruserdata
+
+# PyCharm / JetBrains
+.idea/
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Project specific: Results and Processed data
+_results_/
+_Processed_/
+
+# Data files
+data/*.csv
+*.log
+*.tmp
