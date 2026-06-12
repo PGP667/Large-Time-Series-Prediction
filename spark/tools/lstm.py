@@ -6,8 +6,8 @@
 #from __future__ import print_function
 #from sklearn.metrics import mean_squared_error
 #from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential
 from math import sqrt
 
 
@@ -127,7 +127,9 @@ def fit_lstm (train, look_back, batch_size, nb_epoch, neurons):
     
     for i in range(nb_epoch):
         model.fit(X, y, epochs=1, batch_size=batch_size, verbose=1, shuffle=False)
-        model.reset_states()
+        for layer in model.layers:
+            if hasattr(layer, "reset_states"):
+                layer.reset_states()
     return model
 
 #--------------------------------------------------------------#
@@ -135,7 +137,7 @@ def fit_lstm (train, look_back, batch_size, nb_epoch, neurons):
 #--------------------------------------------------------------#
 def forecast_lstm (model,look_back, batchSize, X):
     X = X.reshape(X.shape[0], look_back, X.shape[1] / look_back)
-    yhat = model.predict (X,  batch_size = batchSize)
+    yhat = model.predict (X,  batch_size = batchSize, verbose = 0)
     
     #print (yhat)
     #print (yhat[0, 0])

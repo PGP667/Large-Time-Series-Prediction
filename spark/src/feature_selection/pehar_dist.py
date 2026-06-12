@@ -9,7 +9,7 @@ from pyspark.sql.functions import *
 
 import numpy as np
 import sys
-import os
+import subprocess
 
 conf = (SparkConf("Hits"))
 sc = SparkContext(conf = conf)
@@ -104,8 +104,8 @@ def list_to_str (x):
     return res 
 if __name__ == "__main__":
     
-    os.system ("hadoop fs -mkdir -p features_selection")
-    os.system ("hadoop fs -mkdir -p features_selection/input_mat")
+    subprocess.run(["hadoop", "fs", "-mkdir", "-p", "features_selection"], check=True)
+    subprocess.run(["hadoop", "fs", "-mkdir", "-p", "features_selection/input_mat"], check=True)
     
     iters = 30
     if (len (sys.argv[1].split ('/')) > 1):
@@ -131,7 +131,6 @@ if __name__ == "__main__":
     mode("overwrite").\
     option("header", "true").\
     save("/user/hduser/features_selection/" + input_mat) 
-
 
 
 

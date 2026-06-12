@@ -8,8 +8,8 @@ import sys
 import glob
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential
 from math import sqrt
 
 from joblib import Parallel, delayed
@@ -131,14 +131,16 @@ class LSTM_MODEL:
 
     def predict (self, X):
         X_reshaped = X.reshape(X.shape[0], self. look_back, int (X.shape[1] / self. look_back))
-        preds = self. model. predict (X_reshaped, batch_size = 1). flatten ()
+        preds = self. model. predict (X_reshaped, batch_size = 1, verbose = 0). flatten ()
         return preds
 
     def update (self, X, Y, epochs):
         new_shape = [X.shape[0], self.look_back, int (X.shape[1] / self.look_back)]
         X_reshaped = X.reshape (new_shape)
         self.model.fit (X_reshaped, Y,  epochs = epochs, batch_size = 1, verbose = 0, shuffle = False)
-        self.model.reset_states()
+        for layer in self.model.layers:
+            if hasattr(layer, "reset_states"):
+                layer.reset_states()
 
 
 #--------------------------------------#
@@ -247,7 +249,7 @@ def main ():
     else:
     	fnames = glob.glob (fnames_path+"*.csv")
 
-    Parallel(5)(delayed(predictbase)(fname, output_directory, reset = 0) for fname in fnames)
+    Parallel(get_n_jobs())(delayed(predictbase)(fname, output_directory, reset = 0) for fname in fnames)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,12 @@
-# Setup file, to execute the hole or a part of the prediction process
+# Setup file, to execute the whole prediction process or one step.
 # Author: Youssef Hmamouche
 
-import os, sys, glob, argparse
+import argparse
+import glob
+import shutil
+import subprocess
+import sys
+from pathlib import Path
 
 #==========================================================================#
 # Generic funtion to
@@ -9,100 +14,103 @@ import os, sys, glob, argparse
 # and put results on output_directory
 def execute_script (data_path, output_directory, script_path):
 
-	script_name = script_path.split ('/')[-1]
+	script = Path(script_path)
+	script_name = script.name
 
-	if not os.path.exists(script_path):
+	if not script.exists():
 		print ("Error: the script does not exist!")
-		exit (1)
+		sys.exit(1)
 
 	if script_name.endswith('.py'):
-		query = "python " + script_path + " " + data_path + " " + output_directory
+		command = [sys.executable, str(script), data_path, output_directory]
 
 	elif script_name.endswith('.R'):
-		query = "Rscript " + script_path  + " " + data_path + " " + output_directory
+		command = ["Rscript", str(script), data_path, output_directory]
 
 	else:
 		print ("Current verstion accept just python and R files.")
 		return
 
 	try:
-		os.system (query)
-	except ValueError:
+		subprocess.run(command, check=True)
+	except (OSError, subprocess.CalledProcessError) as exc:
 		print ("Error in executing the script " + script_path + " on " + data_path)
+		print(exc)
 
 #==========================================================================#
 def pre_selection (data_path, script_name = ""):
 
-	if not os.path.exists(data_path):
+	if not Path(data_path).exists():
 		print ("Error: data path does not exist")
-		exit (1)
+		sys.exit(1)
 
-	data_name = data_path.split ('/')[-1].split ('.')[0]
-	output_directory = 'results/pre_selection/' + data_name + "/"
+	data_name = Path(data_path).stem
+	output_directory = Path('results/pre_selection') / data_name
 
-	if not os.path.exists (output_directory):
-			os.makedirs (output_directory)
+	output_directory.mkdir(parents=True, exist_ok=True)
 
-	graphs_path = "src/pre_selection/"
+	graphs_path = Path("src/pre_selection")
 
 	if script_name == "":
-		graph_names = [fn for fn in os.listdir(graphs_path)
-              if any(fn.endswith(ext) for ext in ['.py', '.R'])]
+		graph_names = [fn for fn in graphs_path.iterdir()
+              if fn.suffix in ['.py', '.R']]
 
-		for script_name in graph_names:
-			execute_script (data_path, output_directory, graphs_path + script_name)
+		for script in graph_names:
+			execute_script(data_path, str(output_directory), str(script))
 
 	else:
-		execute_script (data_path, output_directory,  script_name)
+		execute_script(data_path, str(output_directory), script_name)
 
 
 #==========================================================================#
 def selection (data_path, script_name = ""):
 
-	if not os.path.exists(data_path):
+	if not Path(data_path).exists():
 		print ("Error: data path does not exist")
-		exit (1)
+		sys.exit(1)
 
-	data_name = data_path.split ('/')[-1].split ('.')[0]
-	output_directory = 'results/selection/' + data_name + "/"
+	data_name = Path(data_path).stem
+	output_directory = Path('results/selection') / data_name
 
-	if not os.path.exists (output_directory):
-			os.makedirs (output_directory)
+	output_directory.mkdir(parents=True, exist_ok=True)
 
-	reduction_methods_path = "src/selection/"
+	reduction_methods_path = Path("src/selection")
 
 	if script_name == "":
-		reduction_methods = [fn for fn in os.listdir(reduction_methods_path)
-              if any(fn.endswith(ext) for ext in ['.py', '.R'])]
+		reduction_methods = [fn for fn in reduction_methods_path.iterdir()
+              if fn.suffix in ['.py', '.R']]
 
-		for script_name in reduction_methods:
-			execute_script (data_path, output_directory, reduction_methods_path + script_name)
+		for script in reduction_methods:
+			execute_script(data_path, str(output_directory) + "/", str(script))
 
 	else:
-		execute_script (data_path, output_directory,  script_name)
+		execute_script(data_path, str(output_directory) + "/", script_name)
 
 #==========================================================================#
 def prediction (data_path, script_name):
 
-	if not os.path.exists(data_path):
+	if not Path(data_path).exists():
 		print ("Error: data path does not exist")
-		exit (1)
+		sys.exit(1)
 
-	data_name = data_path.split ('/')[-1].split ('.')[0]
-	output_directory = 'results/prediction/' + data_name + "/"
+	data_name = Path(data_path).stem
+	output_directory = Path('results/prediction') / data_name
 
-	if not os.path.exists (output_directory):
-			os.makedirs (output_directory)
+	output_directory.mkdir(parents=True, exist_ok=True)
 
-	selection_files_path = "results/selection/" + data_name + '/'
+	selection_files_path = Path("results/selection") / data_name
 
-	script_name = script_name .split ('/')[-1]
+	script_name = Path(script_name).name
 
-	if script_name in ['var_shrinkage.py', 'auto_arima.R', 'auto_arima.py']:
-		execute_script (data_path, output_directory, "src/prediction/" + script_name)
+	if script_name == "":
+		for script in ["var_shrinkage.py", "auto_arima.py", "lstm.py", "vecm.py"]:
+			prediction(data_path, script)
+
+	elif script_name in ['var_shrinkage.py', 'auto_arima.R', 'auto_arima.py']:
+		execute_script(data_path, str(output_directory), str(Path("src/prediction") / script_name))
 
 	elif script_name in ['lstm.py', 'vecm.R', 'vecm.py']:
-		execute_script (selection_files_path, output_directory, "src/prediction/" + script_name)
+		execute_script(str(selection_files_path) + "/", str(output_directory), str(Path("src/prediction") / script_name))
 
 	else:
 		print ("Prediction script not found.")
@@ -110,40 +118,36 @@ def prediction (data_path, script_name):
 #==========================================================================#
 def pre_evaluation (data_path):
 
-	data_name = data_path.split ('/')[-1].split ('.')[0]
+	data_name = Path(data_path).stem
 
-	if not os.path.exists(data_path):
+	if not Path(data_path).exists():
 		print ("Error: data path does not exist")
-		exit (1)
+		sys.exit(1)
 
-	output_directory = "results/pre_evaluation/" + data_name + '/'
-	os.system ("rm -r " +  output_directory)
-	os.makedirs (output_directory)
+	output_directory = Path("results/pre_evaluation") / data_name
+	shutil.rmtree(output_directory, ignore_errors=True)
+	output_directory.mkdir(parents=True, exist_ok=True)
 
 	script = "src/pre_evaluation/pre_evaluation.py"
 
-	query = "python " + script + ' ' + data_path + ' ' + output_directory
-	os. system (query)
+	subprocess.run([sys.executable, script, data_path, str(output_directory)], check=True)
 
 #==========================================================================#
 def evaluation (data_path):
 
-	data_name = data_path.split ('/')[-1].split ('.')[0]
+	data_name = Path(data_path).stem
 
-	if not os.path.exists(data_path):
+	if not Path(data_path).exists():
 		print ("Error: data path does not exist")
-		exit (1)
+		sys.exit(1)
 
-	output_directory = "results/evaluation/" + data_name + '/'
-	if not os.path.exists (output_directory):
-			os.makedirs (output_directory)
+	output_directory = Path("results/evaluation") / data_name
+	output_directory.mkdir(parents=True, exist_ok=True)
 
 	scripts = glob.glob ("src/evaluation/*.py")
 
 	for script in scripts:
-
-		query = "python " + script + ' ' + data_path + ' ' + output_directory
-		os. system (query)
+		subprocess.run([sys.executable, script, data_path, str(output_directory)], check=True)
 
 #==========================================================================#
 if __name__ == '__main__':

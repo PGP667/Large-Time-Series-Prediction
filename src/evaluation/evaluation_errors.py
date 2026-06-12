@@ -20,7 +20,7 @@ def main():
 
         if "Error: Could not read file" in error:
             # get fname
-            m = re.search("([^\s]*\.csv)", error)
+            m = re.search(r"([^\s]*\.csv)", error)
             fname = m.group(1).split("/")[-1]
             fname = re.sub("VECM(-|_)", "", fname)
             fname = re.sub("rolling(-|_)", "", fname)
@@ -28,7 +28,7 @@ def main():
             print (prefix.replace("prediction","selection") + "/" + fname)
 
         continue
-        m = re.search("([^\s]*\.csv)", error)
+        m = re.search(r"([^\s]*\.csv)", error)
         fname = m.group(1).split("/")
         groups = ["Auto.Arima_","Univariate-Model_"]
         for g in groups:

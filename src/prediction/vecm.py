@@ -119,4 +119,4 @@ if __name__ == "__main__":
             args.in_files += "/"
         fnames = glob.glob (args.in_files+"*.csv")
 
-    Parallel(5)(delayed(predictbase)(fname, output_directory, reset = 0) for fname in fnames)
+    Parallel(get_n_jobs())(delayed(predictbase)(fname, output_directory, reset = 0) for fname in fnames)

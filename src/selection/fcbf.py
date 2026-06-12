@@ -265,4 +265,4 @@ if __name__ == '__main__':
     output_directory_pre_selection = output_directory.replace("selection", "pre_selection")
 
 
-    Parallel(1)(delayed(predictFile) (data, target, output_directory, fname, max_features) for target in targets)
+    Parallel(csvh.get_n_jobs())(delayed(predictFile) (data, target, output_directory, fname, max_features) for target in targets)

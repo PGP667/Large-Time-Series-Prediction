@@ -1,12 +1,12 @@
 #!/usr/bin/python
 
-import os
 import sys
 import glob
 import re
 from collections import defaultdict, OrderedDict
 import pickle
 import hashlib
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
@@ -123,7 +123,7 @@ def read_and_evaluate_results():
         lambda: defaultdict(lambda: defaultdict(dict))))
     error_list = []
 
-    n_components_match = re.compile("n_components\s*=\s*([0-9]+)\s*[,)]")
+    n_components_match = re.compile(r"n_components\s*=\s*([0-9]+)\s*[,)]")
 
     out_dir = sys.argv[2]
     in_dir = out_dir.replace("pre_evaluation","prediction")
@@ -217,8 +217,8 @@ def main():
     # Set the output prefix
     timeseries_prefix = sys.argv[1].split("/")[-1].split(".")[0]
 
-    if os.path.exists ("%s/%s.pickle"%(out_dir, timeseries_prefix)):
-        os.system ("rm %s/%s.pickle"%(out_dir, timeseries_prefix))
+    output_pickle = Path(out_dir) / ("%s.pickle" % timeseries_prefix)
+    output_pickle.unlink(missing_ok=True)
 
 
     # Get the output touple
@@ -227,7 +227,7 @@ def main():
 
     tables_real = default_to_regular(tables_real)
 
-    with open("%s/%s.pickle"%(out_dir, timeseries_prefix),"wb") as out_file:
+    with open(output_pickle, "wb") as out_file:
         pickle.dump(tables_real, out_file)
         pickle.dump(error_list, out_file)
 

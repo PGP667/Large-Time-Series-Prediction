@@ -1,0 +1,30 @@
+[project]
+name = "large-time-series-prediction"
+version = "0.1.0"
+description = "Framework for causality-based feature selection and large multivariate time-series prediction."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "numpy>=1.26,<2.0",
+    "pandas>=2.2",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "statsmodels>=0.14",
+    "pmdarima>=2.0",
+    "tensorflow>=2.16",
+    "pyspark>=3.5",
+    "matplotlib>=3.9",
+    "seaborn>=0.13",
+    "joblib>=1.4",
+    "tqdm>=4.66",
+    "openpyxl>=3.1",
+    "xlrd>=2.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "UP", "B", "SIM"]
+ignore = ["E501"]

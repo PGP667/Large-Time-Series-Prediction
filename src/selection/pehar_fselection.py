@@ -180,5 +180,5 @@ if __name__ == '__main__':
 
         print ("Feature selection with", graph_type, "causality graph")
         print (17 * '-')
-        Parallel(5)(delayed(predictFile) (data, target, output_directory, fname, fname_graph, graph_type, max_features) for target in targets)
+        Parallel(csvh.get_n_jobs())(delayed(predictFile) (data, target, output_directory, fname, fname_graph, graph_type, max_features) for target in targets)
         print ("... Done.")

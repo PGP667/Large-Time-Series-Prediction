@@ -1,10 +1,18 @@
 import sys
 import base64
 import hashlib
+import os
 from os import path
 from functools import partial
 
 import pandas as pd
+
+def get_n_jobs(default=1):
+    """Return a safe joblib worker count, configurable with LTSP_N_JOBS."""
+    try:
+        return int(os.environ.get("LTSP_N_JOBS", default))
+    except ValueError:
+        return default
 
 def parse_selection_arguments(argv):
     """Parse cmdline arguments for selection method script
@@ -83,7 +91,7 @@ def read_csv_and_metadata(filename, **kwargs):
     return matrix
 
 def read_csv_and_metadata_2(filename, **kwargs):
-    #pd.DataFrame._metadata = ["meta_header"]
+    pd.DataFrame._metadata = ["meta_header"]
 
     # if not set in kwargs, use defaults for this project
     if 'comment' not in kwargs:
@@ -95,7 +103,7 @@ def read_csv_and_metadata_2(filename, **kwargs):
 
     matrix = pd.read_csv(filename, **kwargs)
     matrix = matrix. dropna (axis=1, how='all')
-    matrix._metadata = read_metadata_from_csv_file(filename)
+    matrix.meta_header = read_metadata_from_csv_file(filename)
     return matrix
 
 def exclude_column_generator(df):

@@ -12,7 +12,7 @@ from tools.lstm import *
 import numpy as np
 import pandas as pd
 import sys 
-import os
+import subprocess
 
 conf = (SparkConf())
 sc = SparkContext(conf = conf)
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     graph_name= data_name + '_gc'
     # data
     data = sqlcontext.read. parquet ('data/'+data_name) 
-    os.system ('hdfs dfs  -mkdir -p prediction/')    
+    subprocess.run(["hdfs", "dfs", "-mkdir", "-p", "prediction/"], check=True)
     # features
     df = sqlcontext.read. format ("com.databricks.spark.csv").\
     option("header", "true").\
@@ -97,7 +97,6 @@ if __name__ == "__main__":
     predictions. write. parquet ("prediction/" + data_name, mode='overwrite')
     
     
-
 
 
 

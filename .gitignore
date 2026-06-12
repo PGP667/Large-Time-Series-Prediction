@@ -5,6 +5,7 @@ __pycache__/
 
 # Environments
 .venv/
+.venv*/
 venv/
 ENV/
 env/
@@ -28,6 +29,13 @@ include/
 # Project specific: Results and Processed data
 _results_/
 _Processed_/
+Processed/
+results/evaluation/codex_smoke/
+results/pre_evaluation/codex_smoke/
+results/pre_selection/codex_smoke/
+results/prediction/codex_smoke/
+results/selection/codex_smoke/
+results/selection/codex_smoke*
 
 # Data files
 data/*.csv

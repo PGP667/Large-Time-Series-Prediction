@@ -17,7 +17,7 @@ from tools.causality import *
 from pyspark.sql.functions import isnan, when, count, col
 
 import sys
-import os
+import subprocess
 
 conf = (SparkConf())
 
@@ -41,7 +41,7 @@ def causality (x, y):
 def distributed_pairwise_caus (input_data):
 
     # create repository where to put the matrix of dependencies
-    os.system ('hadoop fs -mkdir -p matrix_of_depend')
+    subprocess.run(["hadoop", "fs", "-mkdir", "-p", "matrix_of_depend"], check=True)
     
     data_name = input_data. split ('/')[-1]. split ('.')[0]   
         
@@ -57,7 +57,6 @@ if __name__ == "__main__":
     print ("Compute the distributed matrix of causalities")    
     input_data = sys.argv[1]
     distributed_pairwise_caus (input_data)
-
 
 
 

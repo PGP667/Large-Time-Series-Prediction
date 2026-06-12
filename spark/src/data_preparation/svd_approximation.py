@@ -13,7 +13,7 @@ from pyspark.mllib.linalg import *
 #from pyspark.mllib.linalg import Matrices
 
 import sys
-import os
+import subprocess
 
 conf = (SparkConf ())
 sc = SparkContext (conf = conf)
@@ -78,8 +78,8 @@ if __name__ == "__main__":
     Vt = DenseMatrix(k, n, flat_list)
 
     # Store the matrix U, S, and Vt
-    os.system ('hadoop fs -mkdir -p svd_decomposition')
-    os.system ('hadoop fs -mkdir -p svd_decomposition/' + data_name)
+    subprocess.run(["hadoop", "fs", "-mkdir", "-p", "svd_decomposition"], check=True)
+    subprocess.run(["hadoop", "fs", "-mkdir", "-p", "svd_decomposition/" + data_name], check=True)
 
     # TODO: compute distributed multiplication U.S.Vt 
     M = U. multiply (S)
